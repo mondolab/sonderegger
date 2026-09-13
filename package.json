@@ -1,0 +1,20 @@
+{
+  "name": "mecanica-sonderegger",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sistema de gestión para taller mecánico MECÁNICA SONDERGGER",
+  "scripts": {
+    "install:all": "npm --prefix worker install && npm --prefix frontend install",
+    "dev:worker": "npm --prefix worker run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently -n worker,frontend -c yellow,cyan \"npm:dev:worker\" \"npm:dev:frontend\"",
+    "build": "npm --prefix frontend run build",
+    "db:init": "npm --prefix worker run db:init",
+    "db:seed": "npm --prefix worker run db:seed",
+    "deploy:worker": "npm --prefix worker run deploy",
+    "deploy:frontend": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

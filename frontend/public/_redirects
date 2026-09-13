@@ -1,0 +1,2 @@
+/api/*  https://mecanica-sonderegger-api.SU_DOMINIO.workers.dev/api/:splat  200
+/*      /index.html  200
