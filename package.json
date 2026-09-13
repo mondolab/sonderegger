@@ -8,7 +8,7 @@
     "dev:worker": "npm --prefix worker run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev": "concurrently -n worker,frontend -c yellow,cyan \"npm:dev:worker\" \"npm:dev:frontend\"",
-    "build": "npm --prefix frontend run build",
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build",
     "db:init": "npm --prefix worker run db:init",
     "db:seed": "npm --prefix worker run db:seed",
     "deploy:worker": "npm --prefix worker run deploy",

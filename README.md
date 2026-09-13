@@ -97,9 +97,9 @@ Abrir `http://localhost:5173`. En el primer acceso se pide **usuario y contrase�
    (paso 5). Mantener la línea `/* /index.html 200` (fallback para rutas SPA).
 
 8. **Publicar el frontend en Cloudflare Pages**:
-   - Build command: `npm --prefix frontend run build`
+   - Build command: `npm run build` (instala y compila el frontend desde la raíz)
    - Output directory: `frontend/dist`
-   - O bien conecta el repo a Pages y usa el script raíz `npm run build`.
+   - O bien conecta el repo a Pages; el script raíz ya prepara las dependencias del frontend.
 
 9. **Crear el usuario inicial**: entrar a la URL del sitio, login → **“Primer acceso”**,
    definir usuario y contraseña.
