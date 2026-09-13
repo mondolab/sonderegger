@@ -13,6 +13,17 @@ database_name = "mecanica-sonderegger-db"
 database_id = "2b63464f-3f2e-4cdc-9c9e-58eb1d419bf7"
 
 # =====================================================
+# Assets estáticos (el sitio): se sirve frontend/dist.
+# run_worker_first = true => TODA petición entra al worker;
+# /api/* lo resuelve la API y el resto lo sirven los assets.
+# =====================================================
+[assets]
+directory = "../frontend/dist"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "single-page-application"
+
+# =====================================================
 # Si el frontend vive en un origen distinto al worker
 # (p.ej. frontend en pages.dev y API en workers.dev),
 # define el origen permitido para CORS:

@@ -60,60 +60,51 @@ npm run dev            # worker en :8787 y frontend en :5173 (con Vite proxy al 
 
 Abrir `http://localhost:5173`. En el primer acceso se pide **usuario y contraseña** (setup inicial): quedan guardados con hash PBKDF2-SHA256; no hay usuarios por omisión.
 
-## Puesta en producción (10 pasos)
+## Puesta en producción (Cloudflare Pages + Workers)
 
-1. **Publicar el repositorio en GitHub** (o conecta la carpeta a Cloudflare Pages desde el dashboard).
+La app se sirve desde **un único worker** con assets estáticos: el mismo
+dominio atiende el sitio (`/`) y la API (`/api/*`). No hace falta CORS.
 
-2. **Crear la base de datos D1** en Cloudflare:
+1. **Publicar el repositorio en GitHub** (o conecta la carpeta a Cloudflare Pages).
+   El proyecto de Pages ya está configurado como *Worker with static assets*:
+   - Build command: `npm run build` (compila `frontend/dist`)
+   - El config raíz `wrangler.jsonc` define que el worker se llama `sonderegger`,
+     usa `main = worker/src/index.ts`, sirve `frontend/dist` como assets y
+     expone la base D1 como binding `DB`.
+   Cada push redisplega solo.
+
+2. **Crear la base de datos D1** (una sola vez, desde tu máquina):
    ```bash
    cd worker
-   npm run db:create
+   npx wrangler login
+   npx wrangler d1 create mecanica-sonderegger-db
    ```
-   El comando muestra el `database_id` de la nueva base (`mecanica-sonderegger-db`).
+   El comando imprime el `database_id`.
 
-3. **Configurar el `database_id`**: abrir `worker/wrangler.toml` y reemplazar
-   `REEMPLAZAR_CON_EL_ID_DE_TU_D1` por el id del paso anterior.
+3. **Poner el id real en la config**: reemplazar `2b63464f-3f2e-4cdc-9c9e-58eb1d419bf7`
+   por el id del paso anterior en:
+   - `wrangler.jsonc` (raíz, lo usa el deploy de Pages)
+   - `worker/wrangler.toml` (lo usan los scripts locales)
 
-4. **Crear las tablas en la base remota**:
+4. **Crear esquema y datos** en la base remota:
    ```bash
-   npm run db:init      # aplica schema.sql
-   npm run db:seed      # carga la configuración inicial
+   npm run db:init      # schema.sql
+   npm run db:seed      # datos del taller (incluye el contacto real)
    ```
 
-5. **Desplegar la API**:
-   ```bash
-   npm run deploy
-   ```
-   Anota la URL que muestra el deploy, por ejemplo
-   `https://mecanica-sonderegger-api.<subdominio>.workers.dev`.
+5. **Redesplegar** (push a GitHub, o `npm run deploy` desde la raíz).
 
-6. **Conectar el frontend a la API**: el frontend llama a `/api/*` en su propio dominio
-   (misma origin) y Pages redirige `/api/*` al worker mediante `_redirects`, por lo que no
-   hace falta CORS. Si preferís apuntar directo a otra origin, compilá con
-   `VITE_API_BASE` (ver `frontend/src/lib/api.ts`).
+6. **Primer acceso**: abrí `https://sonderegger.ferfjd32.workers.dev` y creá
+   usuario y contraseña en la pantalla de setup.
 
-7. **Ajustar `frontend/public/_redirects`**: reemplazar
-   `https://mecanica-sonderegger-api.SU_DOMINIO.workers.dev` por la URL real de la API
-   (paso 5). Mantener la línea `/* /index.html 200` (fallback para rutas SPA).
+> El `database_id` de ejemplo evita que el deploy falle, pero mientras no
+> reemplaces por el id real (paso 3) la API responde "Error de conexión".
 
-8. **Publicar el frontend en Cloudflare Pages**:
-   - Build command: `npm run build` (instala y compila el frontend desde la raíz)
-   - Output directory: `frontend/dist`
-   - O bien conecta el repo a Pages; el script raíz ya prepara las dependencias del frontend.
-
-9. **Crear el usuario inicial**: entrar a la URL del sitio, login → **“Primer acceso”**,
-   definir usuario y contraseña.
-
-10. **Revisar que todo funcione** y, si querés un dominio propio, agregalo en Pages y
-    ajusta el `_redirects` si el worker cambia de origen.
-
-### Si usás dominios distintos (API y web)
-
-Agregar en `worker/wrangler.toml` el origen permitido y descomentar la sección `[vars]`:
-```
-[vars]
-CORS_ORIGIN = "https://tu-dominio.pages.dev"
-```
+### Notas
+- El sitio y la API comparten dominio → la cookie de sesión (`msession`, HttpOnly,
+  SameSite=Lax) viaja sin problemas y no hace falta `_redirects` ni CORS.
+- `frontend/public/_redirects` se conserva por si más adelante querés volver a la
+  arquitectura Pages separada del worker.
 
 ## Notas
 

@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sonderegger",
+  "main": "worker/src/index.ts",
+  "compatibility_date": "2024-11-01",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mecanica-sonderegger-db",
+      "database_id": "2b63464f-3f2e-4cdc-9c9e-58eb1d419bf7"
+    }
+  ],
+  "assets": {
+    "directory": "frontend/dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "single-page-application"
+  }
+}

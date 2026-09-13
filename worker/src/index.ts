@@ -26,6 +26,9 @@ export default {
     }
 
     if (!OPTIONS_RE.test(url.pathname)) {
+      // El worker sirve también el sitio: todo lo que no es /api/*
+      // se resuelve contra los assets estáticos (frontend/dist).
+      if (env.ASSETS) return env.ASSETS.fetch(request);
       return json({ error: 'API no encontrada' }, 404);
     }
 
